@@ -407,18 +407,18 @@ WC_COUNTRY="${_wc_country:-DE}"
 WC_COUNTRY="${WC_COUNTRY^^}"
 
 # ─── Generate random secrets ──────────────────────────────────────────────────
-DB_NAME="wp_$(tr -dc 'a-z0-9' </dev/urandom | head -c 8 || true)"
-DB_USER="wpuser_$(tr -dc 'a-z0-9' </dev/urandom | head -c 6 || true)"
-DB_PASS="$(tr -dc 'A-Za-z0-9!@#$%^&*' </dev/urandom | head -c 32 || true)"
+DB_NAME="wp_$(tr -dc 'a-z0-9' </dev/urandom 2>/dev/null | head -c 8 || true)"
+DB_USER="wpuser_$(tr -dc 'a-z0-9' </dev/urandom 2>/dev/null | head -c 6 || true)"
+DB_PASS="$(tr -dc 'A-Za-z0-9!@#$%^&*' </dev/urandom 2>/dev/null | head -c 32 || true)"
 # DB_ROOT_PASS nicht mehr benötigt — MariaDB root nutzt unix_socket Auth
-WP_ADMIN_PASS="$(tr -dc 'A-Za-z0-9!@#$%' </dev/urandom | head -c 24 || true)"
-REDIS_PASS="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32 || true)"
-PMA_DB_USER="pma_$(tr -dc 'a-z0-9' </dev/urandom | head -c 6 || true)"
-PMA_DB_PASS="$(tr -dc 'A-Za-z0-9!@#$%' </dev/urandom | head -c 32 || true)"
-PMA_BLOWFISH="$(tr -dc 'A-Za-z0-9!@#$%^&*()_+' </dev/urandom | head -c 32 || true)"
-PMA_HTPASSWD_PASS="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 16 || true)"
-FB_PASS="$(tr -dc 'A-Za-z0-9!@#$%' </dev/urandom | head -c 24 || true)"
-FB_HTPASSWD_PASS="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 16 || true)"
+WP_ADMIN_PASS="$(tr -dc 'A-Za-z0-9!@#$%' </dev/urandom 2>/dev/null | head -c 24 || true)"
+REDIS_PASS="$(tr -dc 'A-Za-z0-9' </dev/urandom 2>/dev/null | head -c 32 || true)"
+PMA_DB_USER="pma_$(tr -dc 'a-z0-9' </dev/urandom 2>/dev/null | head -c 6 || true)"
+PMA_DB_PASS="$(tr -dc 'A-Za-z0-9!@#$%' </dev/urandom 2>/dev/null | head -c 32 || true)"
+PMA_BLOWFISH="$(tr -dc 'A-Za-z0-9!@#$%^&*()_+' </dev/urandom 2>/dev/null | head -c 32 || true)"
+PMA_HTPASSWD_PASS="$(tr -dc 'A-Za-z0-9' </dev/urandom 2>/dev/null | head -c 16 || true)"
+FB_PASS="$(tr -dc 'A-Za-z0-9!@#$%' </dev/urandom 2>/dev/null | head -c 24 || true)"
+FB_HTPASSWD_PASS="$(tr -dc 'A-Za-z0-9' </dev/urandom 2>/dev/null | head -c 16 || true)"
 
 # ─── Summary ──────────────────────────────────────────────────────────────────
 echo -e "\n${BOLD}${L_SUMMARY}:${RESET}"
@@ -1195,7 +1195,7 @@ define( 'DB_COLLATE',  'utf8mb4_unicode_ci' );
 ${WP_SECURITY_KEYS}
 
 // ─── Datenbanktabellen-Präfix ─────────────────────────────────────────────────
-\$table_prefix = 'wp_$(tr -dc 'a-z' </dev/urandom | head -c 4 || true)_';
+\$table_prefix = 'wp_$(tr -dc 'a-z' </dev/urandom 2>/dev/null | head -c 4 || true)_';
 
 // ─── Redis Object Cache ───────────────────────────────────────────────────────
 define( 'WP_REDIS_HOST',     '127.0.0.1' );
