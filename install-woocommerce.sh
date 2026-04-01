@@ -1268,6 +1268,10 @@ section "$L_SECTION_8"
 curl -sSLo /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 chmod +x /usr/local/bin/wp
 
+# WP-CLI Cache in beschreibbares Verzeichnis umleiten (verhindert Permission-Warnungen)
+export WP_CLI_CACHE_DIR=/tmp/wp-cli-cache
+mkdir -p "$WP_CLI_CACHE_DIR"
+
 # WP-CLI als www-data ausführen — Alias
 cat > /usr/local/bin/wpcli <<ALIAS
 #!/bin/bash
@@ -1299,8 +1303,8 @@ sudo -u www-data wp theme list --status=inactive --field=name --path="$WP_DIR" 2
   | xargs -r sudo -u www-data wp theme delete --path="$WP_DIR" 2>/dev/null || true
 
 # Permalinks setzen (SEO-optimiert, WooCommerce-Anforderung)
-sudo -u www-data wp rewrite structure '/%postname%/' --hard --path="$WP_DIR"
-sudo -u www-data wp rewrite flush --hard --path="$WP_DIR"
+sudo -u www-data wp rewrite structure '/%postname%/' --hard --path="$WP_DIR" 2>/dev/null
+sudo -u www-data wp rewrite flush --hard --path="$WP_DIR" 2>/dev/null
 
 # Standard-Einstellungen
 sudo -u www-data wp option update timezone_string "${WP_TIMEZONE}" --path="$WP_DIR"
@@ -1351,8 +1355,10 @@ else
 fi
 
 # Tracking & Marketplace-Vorschläge deaktivieren (Datenschutz)
-sudo -u www-data wp option update woocommerce_allow_tracking                "no" --path="$WP_DIR"
-sudo -u www-data wp option update woocommerce_show_marketplace_suggestions  "no" --path="$WP_DIR"
+sudo -u www-data wp option update woocommerce_allow_tracking                   "no" --path="$WP_DIR"
+sudo -u www-data wp option update woocommerce_show_marketplace_suggestions     "no" --path="$WP_DIR"
+sudo -u www-data wp option add    woocommerce_merchant_email_notifications     "no" --path="$WP_DIR" 2>/dev/null || \
+  sudo -u www-data wp option update woocommerce_merchant_email_notifications   "no" --path="$WP_DIR" 2>/dev/null || true
 
 # Setup-Wizard als abgeschlossen markieren
 sudo -u www-data wp option update woocommerce_onboarding_profile \
