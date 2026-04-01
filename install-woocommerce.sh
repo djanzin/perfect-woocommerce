@@ -868,10 +868,8 @@ apt-get install -y -qq \
   "php${PHP_VERSION}-imagick" \
   "php${PHP_VERSION}-cli"
 
-# php-opcache ist in PHP 8.5+ bereits in php-common enthalten — nur installieren wenn verfügbar
-if apt-cache show "php${PHP_VERSION}-opcache" &>/dev/null 2>&1; then
-  apt-get install -y -qq "php${PHP_VERSION}-opcache"
-fi
+# php-opcache ist in PHP 8.5+ bereits in php-common enthalten — Fehler ignorieren falls nicht vorhanden
+apt-get install -y -qq "php${PHP_VERSION}-opcache" 2>/dev/null || true
 
 # Standard www.conf Pool entfernen — verhindert Socket-Konflikt mit wordpress.conf
 rm -f "/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
