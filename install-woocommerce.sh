@@ -1357,8 +1357,10 @@ sudo -u www-data wp option update woocommerce_show_marketplace_suggestions  "no"
 # Setup-Wizard als abgeschlossen markieren
 sudo -u www-data wp option update woocommerce_onboarding_profile \
   '{"completed":true,"skipped":true}' --format=json --path="$WP_DIR"
-sudo -u www-data wp option update woocommerce_task_list_hidden   "yes" --path="$WP_DIR"
-sudo -u www-data wp option update woocommerce_task_list_complete "yes" --path="$WP_DIR"
+sudo -u www-data wp option add woocommerce_task_list_hidden   "yes" --path="$WP_DIR" 2>/dev/null || \
+  sudo -u www-data wp option update woocommerce_task_list_hidden   "yes" --path="$WP_DIR" 2>/dev/null || true
+sudo -u www-data wp option add woocommerce_task_list_complete "yes" --path="$WP_DIR" 2>/dev/null || \
+  sudo -u www-data wp option update woocommerce_task_list_complete "yes" --path="$WP_DIR" 2>/dev/null || true
 
 # WooCommerce Standard-Seiten erstellen (Shop, Warenkorb, Kasse, Mein Konto)
 sudo -u www-data wp wc tool run install_pages \
