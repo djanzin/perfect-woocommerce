@@ -75,6 +75,7 @@ INSTALL_PHPMYADMIN=false
 INSTALL_FILEBROWSER=false
 REVERSE_PROXY=false
 ENGLISH=false
+NONINTERACTIVE=false
 WC_CURRENCY="EUR"
 WC_COUNTRY="DE"
 
@@ -96,6 +97,7 @@ while [[ $# -gt 0 ]]; do
     --filebrowser)    INSTALL_FILEBROWSER=true;  shift   ;;
     --reverse-proxy)  REVERSE_PROXY=true;        shift   ;;
     --english)        ENGLISH=true;              shift   ;;
+    --yes)            NONINTERACTIVE=true;       shift   ;;
     *) if [[ "$_ENGLISH_PRESCAN" == true ]]; then warn "Unknown parameter: $1"; else warn "Unbekannter Parameter: $1"; fi; shift ;;
   esac
 done
@@ -302,14 +304,18 @@ if [[ -z "$WP_ADMIN_EMAIL" ]]; then
 fi
 [[ -z "$WP_ADMIN_EMAIL" ]] && error "$L_ERR_EMAIL"
 
-read -rp "$(echo -e "${BOLD}${L_PROMPT_TITLE}:${RESET} ")" _title
-WP_SITE_TITLE="${_title:-$WP_SITE_TITLE}"
+if [[ "$NONINTERACTIVE" == false ]]; then
+  read -rp "$(echo -e "${BOLD}${L_PROMPT_TITLE}:${RESET} ")" _title
+  WP_SITE_TITLE="${_title:-$WP_SITE_TITLE}"
+fi
 
-read -rp "$(echo -e "${BOLD}${L_PROMPT_USER}:${RESET} ")" _user
-WP_ADMIN_USER="${_user:-$WP_ADMIN_USER}"
+if [[ "$NONINTERACTIVE" == false ]]; then
+  read -rp "$(echo -e "${BOLD}${L_PROMPT_USER}:${RESET} ")" _user
+  WP_ADMIN_USER="${_user:-$WP_ADMIN_USER}"
+fi
 
 # ─── PHP version selection ────────────────────────────────────────────────────
-if [[ "$PHP_VERSION" == "8.3" ]]; then
+if [[ "$PHP_VERSION" == "8.3" && "$NONINTERACTIVE" == false ]]; then
   echo -e "\n${BOLD}${L_PHP_SELECT}:${RESET}"
   echo -e "  1) PHP 8.1"
   echo -e "  2) PHP 8.2"
@@ -328,7 +334,7 @@ if [[ "$PHP_VERSION" == "8.3" ]]; then
 fi
 
 # ─── PHP memory limit selection ───────────────────────────────────────────────
-if [[ "$PHP_MEMORY_LIMIT" == "512M" ]]; then
+if [[ "$PHP_MEMORY_LIMIT" == "512M" && "$NONINTERACTIVE" == false ]]; then
   echo -e "\n${BOLD}${L_MEM_SELECT}:${RESET}"
   echo -e "  1) 256M   ${CYAN}(${L_MEM_SMALL})${RESET}"
   echo -e "  2) 512M   ${CYAN}[${L_MEM_STD}]${RESET}"
@@ -345,11 +351,11 @@ if [[ "$PHP_MEMORY_LIMIT" == "512M" ]]; then
 fi
 
 # ─── Language & timezone ─────────────────────────────────────────────────────
-if [[ "$WP_LANG" == "$L_WP_LANG_DEFAULT" ]]; then
+if [[ "$WP_LANG" == "$L_WP_LANG_DEFAULT" && "$NONINTERACTIVE" == false ]]; then
   read -rp "$(echo -e "${BOLD}${L_PROMPT_LANG}:${RESET} ")" _lang
   WP_LANG="${_lang:-$L_WP_LANG_DEFAULT}"
 fi
-if [[ "$WP_TIMEZONE" == "Europe/Berlin" ]]; then
+if [[ "$WP_TIMEZONE" == "Europe/Berlin" && "$NONINTERACTIVE" == false ]]; then
   read -rp "$(echo -e "${BOLD}${L_PROMPT_TZ}:${RESET} ")" _tz
   WP_TIMEZONE="${_tz:-Europe/Berlin}"
 fi
@@ -384,7 +390,7 @@ if [[ "$INSTALL_FILEBROWSER" == false ]]; then
 fi
 
 # ─── WooCommerce currency selection ──────────────────────────────────────────
-if [[ "$WC_CURRENCY" == "EUR" ]]; then
+if [[ "$WC_CURRENCY" == "EUR" && "$NONINTERACTIVE" == false ]]; then
   echo -e "\n${BOLD}${L_WC_CURRENCY_SELECT}:${RESET}"
   echo -e "  1) EUR  ${CYAN}[${L_WC_CURRENCY_EUR}]${RESET}"
   echo -e "  2) USD  ${CYAN}(${L_WC_CURRENCY_USD})${RESET}"
@@ -401,8 +407,10 @@ if [[ "$WC_CURRENCY" == "EUR" ]]; then
 fi
 
 # ─── WooCommerce base country ─────────────────────────────────────────────────
-read -rp "$(echo -e "${BOLD}${L_PROMPT_WC_COUNTRY}:${RESET} ")" _wc_country
-WC_COUNTRY="${_wc_country:-DE}"
+if [[ "$NONINTERACTIVE" == false ]]; then
+  read -rp "$(echo -e "${BOLD}${L_PROMPT_WC_COUNTRY}:${RESET} ")" _wc_country
+  WC_COUNTRY="${_wc_country:-DE}"
+fi
 # Force uppercase
 WC_COUNTRY="${WC_COUNTRY^^}"
 
@@ -438,8 +446,10 @@ echo -e "  FileBrowser   : ${CYAN}${INSTALL_FILEBROWSER}${RESET}"
 echo -e "  DB Name       : ${CYAN}${DB_NAME}${RESET}"
 echo -e "  DB User       : ${CYAN}${DB_USER}${RESET}"
 echo ""
-read -rp "$(echo -e "${BOLD}${L_PROMPT_CONFIRM}${RESET} ")" CONFIRM
-[[ "${CONFIRM,,}" != "j" && "${CONFIRM,,}" != "y" ]] && echo "$L_ABORTED" && exit 0
+if [[ "$NONINTERACTIVE" == false ]]; then
+  read -rp "$(echo -e "${BOLD}${L_PROMPT_CONFIRM}${RESET} ")" CONFIRM
+  [[ "${CONFIRM,,}" != "j" && "${CONFIRM,,}" != "y" ]] && echo "$L_ABORTED" && exit 0
+fi
 
 # ─── Credentials speichern ────────────────────────────────────────────────────
 CREDS_FILE="/root/.wp_install_credentials_${WP_DOMAIN}.txt"
