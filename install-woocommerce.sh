@@ -509,11 +509,11 @@ if [[ "$SWAP_TOTAL" -lt 512 ]]; then
   else                                    SWAP_SIZE="512M"; SWAP_MB=512
   fi
   info "$(printf "$L_SWAP_CREATE" "$TOTAL_RAM" "$SWAP_SIZE")"
-  fallocate -l "$SWAP_SIZE" /swapfile 2>/dev/null \
-    || dd if=/dev/zero of=/swapfile bs=1M count="${SWAP_MB}" status=none
+  # dd statt fallocate: fallocate erzeugt auf ZFS/btrfs sparse files, die swapon ablehnt
+  dd if=/dev/zero of=/swapfile bs=1M count="${SWAP_MB}" status=none
   chmod 600 /swapfile
   mkswap /swapfile -q
-  swapon /swapfile
+  swapon /swapfile || { warn "swapon fehlgeschlagen — Swap wird übersprungen."; rm -f /swapfile; }
   grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
   sysctl -w vm.swappiness=10 >/dev/null
   grep -q 'vm.swappiness' /etc/sysctl.conf \
