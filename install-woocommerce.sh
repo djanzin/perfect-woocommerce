@@ -523,12 +523,17 @@ if [[ "$SWAP_TOTAL" -lt 512 ]]; then
   dd if=/dev/zero of=/swapfile bs=1M count="${SWAP_MB}" status=none
   chmod 600 /swapfile
   mkswap /swapfile -q
-  swapon /swapfile || { warn "swapon fehlgeschlagen — Swap wird übersprungen."; rm -f /swapfile; }
-  grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
-  sysctl -w vm.swappiness=10 >/dev/null
-  grep -q 'vm.swappiness' /etc/sysctl.conf \
-    || echo 'vm.swappiness=10' >> /etc/sysctl.conf
-  success "$L_SWAP_OK"
+  if swapon /swapfile 2>/dev/null; then
+    grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+    # sysctl schlägt in unprivilegierten LXC-Containern fehl — ignorieren
+    sysctl -w vm.swappiness=10 >/dev/null 2>&1 || true
+    grep -q 'vm.swappiness' /etc/sysctl.conf \
+      || echo 'vm.swappiness=10' >> /etc/sysctl.conf
+    success "$L_SWAP_OK"
+  else
+    warn "swapon fehlgeschlagen (ZFS/btrfs oder kein Kernel-Support) — Swap wird übersprungen."
+    rm -f /swapfile
+  fi
 else
   info "$(printf "$L_SWAP_EXISTS" "$SWAP_TOTAL")"
 fi
