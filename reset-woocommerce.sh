@@ -315,6 +315,10 @@ if [[ -n "$PHP_VERSION" ]]; then
   PHP_PKGS+=("php${PHP_VERSION}")
 fi
 
+# MariaDB-Konfiguration vorab entfernen (sonst dpkg-Warnung wegen nicht-leerem Verzeichnis)
+rm -f /etc/mysql/mariadb.conf.d/99-wordpress.cnf \
+      /etc/mysql/conf.d/99-wordpress.cnf 2>/dev/null || true
+
 apt-get purge -y -qq \
   nginx nginx-common \
   libnginx-mod-http-cache-purge \
