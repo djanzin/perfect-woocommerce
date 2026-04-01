@@ -1615,7 +1615,11 @@ if [[ "$INSTALL_FILEBROWSER" == true ]]; then
   # Download
   curl -fsSL "https://github.com/filebrowser/filebrowser/releases/download/v${FB_VERSION}/linux-amd64-filebrowser.tar.gz" \
     -o /tmp/filebrowser.tar.gz
-  tar -xzf /tmp/filebrowser.tar.gz -C /usr/local/bin/ filebrowser
+  # Ohne Member-Filter extrahieren — neuere Archive nutzen ./filebrowser statt filebrowser
+  mkdir -p /tmp/fb-extract
+  tar -xzf /tmp/filebrowser.tar.gz -C /tmp/fb-extract
+  mv /tmp/fb-extract/filebrowser /usr/local/bin/filebrowser
+  rm -rf /tmp/fb-extract
   chmod +x /usr/local/bin/filebrowser
   rm -f /tmp/filebrowser.tar.gz
 
